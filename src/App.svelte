@@ -1,70 +1,82 @@
 <script>
-	import { onMount } from 'svelte';
-	import Map from './_components/Map.svelte';
-	import Scroller from '@sveltejs/svelte-scroller/Scroller.svelte';
+	import { onMount } from "svelte";
+
+	// Component imports
+	import Map from "./_components/Map.svelte";
+	import MapClean from "./_components/MapClean.svelte";
+	import Scroller from "@sveltejs/svelte-scroller/Scroller.svelte";
+	import LoremIpsum from "./_components/LoremIpsum.svelte";
 
 	let index, offset, progress;
-
-	let mapComponent;
-	function handleClick() {
-		console.log(index)
-		console.log(scrollyConfig.map[index])
-	}
 
 	const scrollyConfig = {
 		map: {
 			0: {
 				translate: [0, 0],
 				scale: 1,
-				dimension: "SCORE"
+				dimension: "P0",
 			},
 			1: {
-				translate: [-7425.200238124638,-2003.7844077329937],
-				scale: 12.74624154056931,
-				dimension: "P1"
+				dimension: "P1",
+				code: "756",
 			},
 			2: {
-				translate: [-6462.515760714943,-1449.3224019238412],
-				scale: 12.746241540569306,
-				dimension: "P3"
+				dimension: "P3",
+				code: "004",
 			},
 			3: {
-				translate: [-7425.200238124638,-2003.7844077329937],
-				scale: 12.74624154056931,
-				dimension: "P2"
+				dimension: "P2",
+				code: "566"
 			},
-		}
-	}
+		},
+	};
 
-	onMount(() => {
-		console.log(mapComponent)
-	})
-
-	// $: mapComponent.tweenSteps(scrollyConfig.map[index].scale, scrollyConfig.map[index].translate);
-
+	onMount(() => {});
 </script>
 
 <h1>HAO Scrollytelling</h1>
-<button on:click={handleClick}>Test</button>
-<Scroller top="{0.2}" bottom="{0.8}" bind:index bind:offset bind:progress>
+<section>
+	<div class="col-medium">
+		<h2>Introduction</h2>
+		<LoremIpsum />
+	</div>
+</section>
+<Scroller top={0} bottom={0.8} bind:index bind:offset bind:progress>
 	<div slot="background">
-		<Map bind:this={mapComponent} debug={false} nextStep={scrollyConfig.map[index]}/>
+		<MapClean debug={true} currentStep={scrollyConfig.map[index]} />
 	</div>
 	<div slot="foreground">
-		<section>First section</section>
-		<section>Second section</section>
-		<section>Third s ection</section>
-		<section>Third s ection</section>
+		<section>This is a very nice world map</section>
+		<section>Now it's zooming to Switzerland, where I live</section>
+		<section>This is Afghanistan in 3rd dimension</section>
+		<section>This is the Nigeria in 2nd dimension</section>
 	</div>
-
 </Scroller>
 
+<!-- <MapClean debug={false} /> -->
 <style>
-	section {
-		height: 80vh;
-		background-color: rgba(0,0,0,0.2);
-		color: white;
-		padding: 1em;
-		margin: 0 0 2em 0;
+	header,
+	section,
+	nav,
+	footer,
+	figure,
+	caption {
+		display: flex;
+		justify-content: center;
+		background-position: center;
+		margin: 0;
+		padding: 0;
 	}
+
+	.col-medium {
+		width: 100%;
+		max-width: 680px;
+		margin: 0 24px;
+	}
+
+	[slot="foreground"] section {
+		padding: 100vh 0 100vh 0;
+		font-size: larger;
+	}
+
 </style>
