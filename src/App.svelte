@@ -46,10 +46,10 @@
 		<MapClean debug={true} currentStep={scrollyConfig.map[index]} />
 	</div>
 	<div slot="foreground">
-		<section>This is a very nice world map</section>
-		<section>Now it's zooming to Switzerland, where I live</section>
-		<section>This is Afghanistan in 3rd dimension</section>
-		<section>This is the Nigeria in 2nd dimension</section>
+		<section><div class="col-medium"><p>This is Nigeria in the 2nd dimension</p></div></section>
+		<section><div class="col-medium"><p>This is Nigeria in the 2nd dimension</p></div></section>
+		<section><div class="col-medium"><p>This is Nigeria in the 2nd dimension</p></div></section>
+		<section><div class="col-medium"><p>This is Nigeria in the 2nd dimension</p></div></section>
 	</div>
 </Scroller>
 
@@ -77,6 +77,24 @@
 	[slot="foreground"] section {
 		padding: 100vh 0 100vh 0;
 		font-size: larger;
+	}
+
+	[slot="foreground"] section div {
+		padding: 12px;
+		position: relative;
+	}
+
+	[slot="foreground"] section div::before {
+		content: "";
+		position: absolute;
+		top: 0;
+		left: 0;
+		background-color: white;
+		width: 100%;
+		height: 100%;
+		opacity: 0.8;
+		z-index: -1;
+		border-radius: 5px;
 	}
 
 </style>
