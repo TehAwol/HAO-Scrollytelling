@@ -3,7 +3,7 @@
     import { feature } from "topojson-client";
     import { geoPath, geoMercator } from "d3-geo";
 
-    import worldTopo from "../_data/countries-50m.json";
+    import worldTopo from "../_data/countries-110m.json";
     import accessData from "../_data/filtered-data.json";
 
     import * as d3 from "d3";
@@ -45,13 +45,15 @@
         P3: ["#D9D9D9", "#E0D3D9", "#CC9EAF", "#A3405C", "#752345", "#351229"],
     };
 
+    let currentColor = colorSteps.P0;
+
     // Map init
     function initMap() {
         let svg = d3
             .select(".map-container")
             .append("svg")
-            .attr("preserveAspectRatio", "xMidYMid")
-            .attr("viewBox", "0 0 " + width + " " + height)
+            // .attr("preserveAspectRatio", "xMidYMid")
+            .attr("viewBox", `0 0 ${width} ${height}`)
             .attr("style", "background-color:#ffffff");
 
         svg.append("g")
@@ -66,7 +68,20 @@
             .attr("stroke", "white")
             .attr("stroke-width", "1px");
 
+        // Adapt svg to mobile screens
+        // if (width < height) {
+        //     svg.attr("transform", "scale(2)")
+        //     d3.selectAll("g path").attr("stroke-width", 1 / 2);
+        // };
+
         updateColor("P0");
+    }
+
+    function updateSize() {
+        x = window.innerWidth || e.clientWidth || g.clientWidth;
+        y = window.innerHeight || e.clientHeight || g.clientHeight;
+
+        d3.select("svg").attr("viewBox", `0 0 ${width} ${height}`);
     }
 
     // Zoom init
@@ -94,7 +109,7 @@
      * @param {string} dimension The dimension to show: "P0", "P1", "P2" or "P3"
      */
     function updateColor(dimension) {
-        let colors = colorSteps[dimension];
+        currentColor = colorSteps[dimension];
 
         d3.select("svg g")
             .selectAll("path")
@@ -102,7 +117,7 @@
             .duration(1000)
             .attr("fill", (d) => {
                 d.score = scores.get(d.id) || emptyScore;
-                return colors[d.score[dimension]];
+                return currentColor[d.score[dimension]];
             });
     }
 
@@ -133,17 +148,27 @@
      */
     function zoomToCountry(code) {
         if (!code) return;
-        let selection = document.getElementById(code).__data__;
-        let bounds = path.bounds(selection),
-            dx = bounds[1][0] - bounds[0][0],
-            dy = bounds[1][1] - bounds[0][1],
-            x = (bounds[0][0] + bounds[1][0]) / 2,
-            y = (bounds[0][1] + bounds[1][1]) / 2,
-            scale = Math.max(
-                1,
-                Math.min(8, 0.9 / Math.max(dx / width, dy / height))
-            ),
-            translate = [width / 2 - scale * x, height / 2 - scale * y];
+
+        let translate,scale;
+
+        if (code === "000") {
+            translate = [0, 0];
+            scale = 1;
+        } else {
+            let selection = document.getElementById(code).__data__;
+            let bounds = path.bounds(selection),
+                dx = bounds[1][0] - bounds[0][0],
+                dy = bounds[1][1] - bounds[0][1],
+                x = (bounds[0][0] + bounds[1][0]) / 2,
+                y = (bounds[0][1] + bounds[1][1]) / 2;
+                
+                scale = Math.max(
+                    1,
+                    Math.min(8, 0.9 / Math.max(dx / width, dy / height))
+                );
+
+                translate = [width / 2 - scale * x, height / 2 - scale * y];
+        }
 
         d3.select("svg g")
             .transition()
@@ -162,8 +187,7 @@
     onMount(() => {
         initMap();
         if (debug) initZoom();
-        // nextStep(tweenScale, tweenTranslate);
-        // zoomToCountry("804");
+        d3.select(window).on("resize.updatesvg", updateSize);
     });
 </script>
 
@@ -172,5 +196,7 @@
 <style>
     .map-container {
         font-size: 0; /* to prevent margin at bottom of map container */
+        width: 100vw;
+        height: 100vh;
     }
 </style>

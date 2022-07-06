@@ -26,7 +26,11 @@
 			},
 			3: {
 				dimension: "P2",
-				code: "566"
+				code: "566",
+			},
+			4: {
+				dimension: "P0",
+				code: "000",
 			},
 		},
 	};
@@ -41,20 +45,58 @@
 		<LoremIpsum />
 	</div>
 </section>
-<Scroller top={0} bottom={0.8} bind:index bind:offset bind:progress>
+<Scroller top={0} bottom={1} bind:index bind:offset bind:progress>
 	<div slot="background">
-		<MapClean debug={true} currentStep={scrollyConfig.map[index]} />
+		<MapClean debug={false} currentStep={scrollyConfig.map[index]} />
 	</div>
 	<div slot="foreground">
-		<section><div class="col-medium"><p>This is Nigeria in the 2nd dimension</p></div></section>
-		<section><div class="col-medium"><p>This is Nigeria in the 2nd dimension</p></div></section>
-		<section><div class="col-medium"><p>This is Nigeria in the 2nd dimension</p></div></section>
-		<section><div class="col-medium"><p>This is Nigeria in the 2nd dimension</p></div></section>
+		<section>
+			<div class="col-medium">
+				<p>This is Nigeria in the 2nd dimension</p>
+			</div>
+		</section>
+		<section>
+			<div class="col-medium">
+				<p>This is Nigeria in the 2nd dimension</p>
+			</div>
+		</section>
+		<section>
+			<div class="col-medium">
+				<p>This is Nigeria in the 2nd dimension</p>
+			</div>
+		</section>
+		<section>
+			<div class="col-medium">
+				<p>This is Nigeria in the 2nd dimension</p>
+			</div>
+		</section>
+		<section>
+			<div class="col-medium">
+				<p>This is Nigeria in the 2nd dimension</p>
+			</div>
+		</section>
 	</div>
 </Scroller>
+<section>
+	<div class="col-medium">
+		<h2>Introduction</h2>
+		<LoremIpsum />
+	</div>
+</section>
 
 <!-- <MapClean debug={false} /> -->
 <style>
+	@import url("https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Roboto&display=swap");
+
+	body {
+		font-family: "Bebas Neue", cursive;
+		font-family: "Roboto", sans-serif;
+	}
+
+	h2 {
+		font-family: "Bebas Neue";
+	}
+
 	header,
 	section,
 	nav,
@@ -96,5 +138,4 @@
 		z-index: -1;
 		border-radius: 5px;
 	}
-
 </style>
