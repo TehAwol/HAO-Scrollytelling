@@ -1,139 +1,221 @@
 <script>
-    import { onMount } from 'svelte';
-    import { feature } from 'topojson-client';
-    import { geoPath, geoMercator} from 'd3-geo';
+    import { onMount } from "svelte";
+    import { feature } from "topojson-client";
+    import { geoPath, geoMercator } from "d3-geo";
 
-    import worldTopo from '../_data/countries-50m.json';
-    import accessData from '../_data/access-data.json';
+    export let geojson;
+    export let accessData;
 
-    import * as d3 from 'd3';
+    import * as d3 from "d3";
 
-    export let nextStep = {
-        translate: [0,0],
-        scale: 1
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+
+    export let currentStep = {
+        translate: [0, 0],
+        scale: 1,
+        dimension: "P0",
     };
 
-    // Updates map whenever a newStep is received
-    $: tweenSteps(nextStep.scale, nextStep.translate);
-    // Updates dimension whenever a newStep is received
-    $: updateDimension(nextStep.dimension)
-    
-    const projection = geoMercator().scale(120);
+    // Reactive logic
+    $: nextStep(currentStep.scale, currentStep.translate);
+    $: updateColor(currentStep.dimension);
+    $: zoomToCountry(currentStep.code);
+
+    // Projection init
+    const projection = geoMercator()
+        .scale(width / 2 / Math.PI)
+        .translate([width / 2, height / 2]);
     const path = geoPath().projection(projection);
+    const worldjson = feature(geojson, geojson.objects.countries).features;
 
-    const worldjson = feature(worldTopo, worldTopo.objects.countries).features;
+    // Map linking Access Scores to country features via ISO 3166-1 numeric
+    const scores = new Map();
+    accessData.forEach((d) => {
+        scores.set(d.code, { P0: d.P0, P1: d.P1, P2: d.P2, P3: d.P3 });
+    });
 
-    const pillarSteps = {
-        SCORE: ["#FFFFFF", "#FFD76D", "#FEA649", "#F86C30", "#E62F21", "#991824"],
-        P1: ["#FFFFFF", "#E1F2F6", "#C8DFE8", "#7FB1D4", "#3E78B3", "#133267"],
-        P2: ["#FFFFFF", "#E1EFD3", "#CBE8B8", "#95C987", "#4A9351", "#1A4220"],
-        P3: ["#FFFFFF", "#E0D3D9", "#CC9EAF", "#A3405C", "#752345", "#351229"]
+    // Unranked countries are provided with an emptyScore for coloring purposes
+    const emptyScore = { P0: "0", P1: "0", P2: "0", P3: "0" };
+
+    // Color gradient config
+    const colorSteps = {
+        P0: ["#D9D9D9", "#FFD76D", "#FEA649", "#F86C30", "#E62F21", "#991824"],
+        P1: ["#D9D9D9", "#E1F2F6", "#C8DFE8", "#7FB1D4", "#3E78B3", "#133267"],
+        P2: ["#D9D9D9", "#E1EFD3", "#CBE8B8", "#95C987", "#4A9351", "#1A4220"],
+        P3: ["#D9D9D9", "#E0D3D9", "#CC9EAF", "#A3405C", "#752345", "#351229"],
     };
 
-    function addScoreClasses(feature) {
-        let className;
-        let name = feature.properties.name;
-        let country = accessData.find(el => el.Country === name);
-        if (country === undefined) {
-            className = '';
-        } else {
-            let score = country.SCORE;
-            let P1 = country.P1;         
-            let P2 = country.P2;         
-            let P3 = country.P3;
-            className = `Ranked ${country.Country} Score-${score} P1-${P1} P2-${P2} P3-${P3}`          
-        }
-        return className;
+    const constraintSteps = [
+        "0 - No significant access constraints",
+        "1 - Low access constraints",
+        "2 - Moderate access constraints",
+        "3 - High access constraints",
+        "4 - Very high access constraints",
+        "5 - Extreme access constraints"
+    ];
+
+    // Map init
+    function initMap() {
+        let svg = d3
+            .select(".map-container")
+            .append("svg")
+            .attr("preserveAspectRatio", "xMidYMid meet")
+            .attr("viewBox", `0 0 ${width} ${height/100*95}`)
+            .attr("style", "background-color:#ffffff");
+
+        svg.append("g")
+            .selectAll("path")
+            .data(worldjson)
+            .enter()
+            .append("path")
+            .attr("d", path)
+            .attr("id", (d) => {
+                return d.id;
+            })
+            .attr("stroke", "white")
+            .attr("stroke-width", "1px");
+
+        // Adapt svg to mobile screens
+        // if (width < height) {
+        //     svg.attr("transform", "scale(2)")
+        //     d3.selectAll("g path").attr("stroke-width", 1 / 2);
+        // };
+
+        updateColor("P0");
     }
 
-    // Applies accessData country name to country path
-    function addCountryID(feature) {
-        let id;
-        let name = feature.properties.name;
-        let country = accessData.find(el => el.Country === name);
-        if (country === undefined) {
-            id="";
-        } else {
-            id = country.Country;
-        }
-        return id;
-    }
+    function updateSize() {
+        let x = window.innerWidth || e.clientWidth || g.clientWidth;
+        let y = window.innerHeight || e.clientHeight || g.clientHeight;
 
-    /**
-     * Updates ranked countries to given dimension colour gradient
-     * @param {string} dimension
-     */
-    export function updateDimension(dimension) {
-        let steps = pillarSteps[dimension];
-        let elements = document.getElementsByClassName("Ranked");
-        for (let path of elements) {
-            let country = accessData.find(el => el.Country === path.id);
-            let color = steps[country[dimension]];
-            path.setAttribute('style', `fill: ${color}`)
-        }
+        console.log(x)
+        console.log(y)
+
+        d3.select("svg").attr("viewBox", `0 0 ${width} ${height}`);
     }
 
     // Zoom init
     export let debug = false;
 
-    let zoom = d3.zoom().on('zoom', handleZoom);
+    let zoom = d3.zoom().on("zoom", handleZoom);
 
     function initZoom() {
-        d3.select('.map-container svg').call(zoom);
+        d3.select(".map-container svg").call(zoom);
     }
 
     function handleZoom(e) {
-    d3.select("svg g")
-    .attr('transform', e.transform);
+        d3.select("svg g").attr("transform", e.transform);
+        if (debug) logTransform(e);
+    }
+
+    function logTransform(e) {
+        let scale = e.transform.k;
+        let translate = [e.transform.x, e.transform.y];
+        console.log(`scale: ${scale}  translate: ${translate}`);
+    }
+
+    /**
+     * Updates country colors to reflect given dimension
+     * @param {string} dimension The dimension to show: "P0", "P1", "P2" or "P3"
+     */
+    function updateColor(dimension) {
+        let currentColor = colorSteps[dimension];
+
+        d3.select("svg g")
+            .selectAll("path")
+            .transition()
+            .duration(1000)
+            .attr("fill", (d) => {
+                d.score = scores.get(d.id) || emptyScore;
+                return currentColor[d.score[dimension]];
+            });
     }
 
     /**
      * Transitions from current transform to given new scale and translation
-     * @param {number} scale 
+     * @param {number} scale
      * @param {Array} translate [x,y]
      */
-    export function tweenSteps(scale, translate) {
+    function nextStep(scale, translate) {
+        if (!translate) return;
         d3.select("svg g")
-         .transition()
-         .duration(1000)
-         .call(zoom.transform, d3.zoomIdentity.translate(translate[0], translate[1]).scale(scale));
+            .transition()
+            .duration(1000)
+            .call(
+                zoom.transform,
+                d3.zoomIdentity
+                    .translate(translate[0], translate[1])
+                    .scale(scale)
+            );
+
+        // Adapts borders to current scale
+        d3.selectAll("g path").attr("stroke-width", 1 / scale);
+    }
+
+    /**
+     * Transitions from current transform to given country
+     * @param {string} code A ISO 3166-1 numeric country code in string format
+     */
+    function zoomToCountry(code) {
+        if (!code) return;
+
+        let translate, scale;
+
+        if (code === "000") {
+            translate = [0, 0];
+            scale = 1;
+        } else {
+            let selection = document.getElementById(code).__data__;
+            let bounds = path.bounds(selection),
+                dx = bounds[1][0] - bounds[0][0],
+                dy = bounds[1][1] - bounds[0][1],
+                x = (bounds[0][0] + bounds[1][0]) / 2,
+                y = (bounds[0][1] + bounds[1][1]) / 2;
+
+            scale = Math.max(
+                1,
+                Math.min(8, 0.9 / Math.max(dx / width, dy / height))
+            );
+
+            translate = [width / 2 - scale * x, height / 2 - scale * y];
+        }
+
+        d3.select("svg g")
+            .transition()
+            .duration(1000)
+            .call(
+                zoom.transform,
+                d3.zoomIdentity
+                    .translate(translate[0], translate[1])
+                    .scale(scale)
+            );
+
+        // Adapts borders to current scale
+        d3.selectAll("g path").attr("stroke-width", 1 / scale);
     }
 
     onMount(() => {
-        console.log('Map component mounted');
-        worldjson.forEach(el => addScoreClasses(el));
-        updateDimension("SCORE");
+        initMap();
         if (debug) initZoom();
+        d3.select(window).on("resize.updatesvg", updateSize);
     });
-
-    let tweenTranslate = [-6462.515760714943,-1449.3224019238412];
-    let tweenScale = 12.746241540569306;
-    
 </script>
 
-<button on:click={() => updateDimension("SCORE")}>Update Access</button>
-<button on:click={() => updateDimension("P1")}>Update P1</button>
-<button on:click={() => updateDimension("P2")}>Update P2</button>
-<button on:click={() => updateDimension("P3")}>Update P3</button>
-<button on:click={() => tweenSteps(tweenScale, tweenTranslate)}>tweenStep</button>
-<button on:click={() => tweenSteps(12.74624154056931, [-7425.200238124638,-2003.7844077329937])}>tweenStep</button>
-
-<div class="map-container">
-    <svg viewBox="0 0 975 450">
-        <g fill="white" stroke="black" stroke-width=".25px">
-            {#each worldjson as feature, i}
-            <path 
-                d={path(feature)}
-                class={addScoreClasses(feature)}
-                id={addCountryID(feature)}
-            />
-            {/each}
-        </g>
-    </svg>
+<div class="chart-container">
+    <div class="map-legend">
+        {#each colorSteps[currentStep.dimension] as color, i}
+            <div class="legend-item">
+                <div><span class="dot" style="background-color: {color}"></span></div><p>{constraintSteps[i]}</p>
+            </div>
+        {/each}
+    </div>
+    <div class="map-container">
+    </div>
 </div>
 
 <style>
-    svg {
-        background-color: #eeeeee;
+    p {
+        font-size: 1em;
     }
 </style>

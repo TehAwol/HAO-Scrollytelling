@@ -2,23 +2,27 @@
 	import { onMount } from "svelte";
 
 	// Component imports
+	import Header from "./_components/Header.svelte";
+	import LandingBanner from "./_components/LandingBanner.svelte";
 	import Map from "./_components/Map.svelte";
-	import MapClean from "./_components/MapClean.svelte";
 	import Scroller from "@sveltejs/svelte-scroller/Scroller.svelte";
 	import LoremIpsum from "./_components/LoremIpsum.svelte";
+	import Footer from "./_components/Footer.svelte";
+
+	import geojson from "./_data/countries-110m.json";
+	import data from "./_data/filtered-data.json";
 
 	let index, offset, progress;
 
 	const scrollyConfig = {
 		map: {
 			0: {
-				translate: [0, 0],
-				scale: 1,
+				code: "000",
 				dimension: "P0",
 			},
 			1: {
 				dimension: "P1",
-				code: "756",
+				code: "000",
 			},
 			2: {
 				dimension: "P3",
@@ -26,7 +30,7 @@
 			},
 			3: {
 				dimension: "P2",
-				code: "566",
+				code: "804",
 			},
 			4: {
 				dimension: "P0",
@@ -38,41 +42,105 @@
 	onMount(() => {});
 </script>
 
-<h1>HAO Scrollytelling</h1>
+<Header />
+<LandingBanner />
 <section>
-	<div class="col-medium">
+	<div class="col-medium content-container">
 		<h2>Introduction</h2>
-		<LoremIpsum />
+		<p>
+			Humanitarian Access is fundamental to humanitarian action. Without
+			it, the broader goal of improving humanitarian conditions of people
+			in need of assistance and protection would be impossible.
+		</p>
+		<p>
+			While there is no agreed-upon definition of “humanitarian access”,
+			many humanitarian actors use and promote a general definition of :
+			<strong
+				>Access of people in need to goods and services, and access by
+				humanitarian actors to people in need of assistance and
+				protection.</strong
+			>
+		</p>
+		<p>
+			ACAPS’ Humanitarian Access Overview provides an analysis on the
+			state of humanitarian access globally. The primary objective of our
+			analysis is to inform humanitarian decision makers by presenting a
+			summary of the access situation in different countries that face
+			humanitarian crises, both recent and protracted.
+		</p>
 	</div>
 </section>
 <Scroller top={0} bottom={1} bind:index bind:offset bind:progress>
 	<div slot="background">
-		<MapClean debug={false} currentStep={scrollyConfig.map[index]} />
+		<Map
+			debug={false}
+			currentStep={scrollyConfig.map[index]}
+			{geojson}
+			accessData={data}
+		/>
 	</div>
-	<div slot="foreground">
+	<div class="foreground-container" slot="foreground">
 		<section>
 			<div class="col-medium">
-				<p>This is Nigeria in the 2nd dimension</p>
+				<p>
+					Over the past six months we’ve been collecting information
+					to produce the current Humanitarian Access Overview. Each
+					country is ranked on a scale from 0 to 5, with 5
+					representing extreme constraints,1 being low constraints and
+					0 none. We structure our data around 3 pillars or
+					dimensions.
+				</p>
 			</div>
 		</section>
 		<section>
 			<div class="col-medium">
-				<p>This is Nigeria in the 2nd dimension</p>
+				<p>
+					The first pillar analyses whether people in need are
+					hindered in any way from accessing humanitarian aid and
+					assistance. This dimension is divided into two main
+					indicators;<br><span style="background-color: #3E78B3; color: white;">Denial of existence of humanitarian needs</span><br>
+					<span style="background-color: #3E78B3; color: white">Restriction and obstruction of access to services and
+						assistance.</span>
+				</p>
 			</div>
 		</section>
 		<section>
 			<div class="col-medium">
-				<p>This is Nigeria in the 2nd dimension</p>
+				<p>
+					There are cases where certain groups or areas specifically
+					are denied entitlement to assistance. This applies mainly in
+					protracted conflict situations, particularly in the Middle
+					East and Asia, and in other regions but to a lesser extent.
+					For instance, in Afghanistan, girls have been excluded from
+					secondary education at schools by the authorities,
+					significantly limiting their access to education.
+				</p>
 			</div>
 		</section>
 		<section>
 			<div class="col-medium">
-				<p>This is Nigeria in the 2nd dimension</p>
+				<p>
+					Some areas are besieged, militarised, or have a high
+					presence of security forces, making it dangerous for people
+					to travel within or out of these areas. This is the case
+					across regions, for several conflict-affected countries.
+					Since the Russian invasion of Ukraine in February 2022,
+					people in besieged areas have been stranded, with limited
+					access to food, water and humanitarian corridors.
+				</p>
 			</div>
 		</section>
 		<section>
 			<div class="col-medium">
-				<p>This is Nigeria in the 2nd dimension</p>
+				<p>
+					The second pillar analyses the access of humanitarian actors
+					to the people in need of humanitarian aid and assistance.
+					This dimension is based on 4 indicators; Impediments to
+					entry into the country Restriction of movement within the
+					country Interference into implementation of humanitarian
+					activities, Violence against personnel, facilities and
+					assets.
+				</p>
 			</div>
 		</section>
 	</div>
@@ -84,58 +152,5 @@
 	</div>
 </section>
 
-<!-- <MapClean debug={false} /> -->
-<style>
-	@import url("https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Roboto&display=swap");
-
-	body {
-		font-family: "Bebas Neue", cursive;
-		font-family: "Roboto", sans-serif;
-	}
-
-	h2 {
-		font-family: "Bebas Neue";
-	}
-
-	header,
-	section,
-	nav,
-	footer,
-	figure,
-	caption {
-		display: flex;
-		justify-content: center;
-		background-position: center;
-		margin: 0;
-		padding: 0;
-	}
-
-	.col-medium {
-		width: 100%;
-		max-width: 680px;
-		margin: 0 24px;
-	}
-
-	[slot="foreground"] section {
-		padding: 100vh 0 100vh 0;
-		font-size: larger;
-	}
-
-	[slot="foreground"] section div {
-		padding: 12px;
-		position: relative;
-	}
-
-	[slot="foreground"] section div::before {
-		content: "";
-		position: absolute;
-		top: 0;
-		left: 0;
-		background-color: white;
-		width: 100%;
-		height: 100%;
-		opacity: 0.8;
-		z-index: -1;
-		border-radius: 5px;
-	}
-</style>
+<Footer />
+<!-- <Map debug={false} /> -->
