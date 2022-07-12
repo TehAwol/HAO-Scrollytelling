@@ -11,6 +11,9 @@
     const width = window.innerWidth;
     const height = window.innerHeight;
 
+    let mobile = false;
+    if (width < height) mobile = true;
+
     export let currentStep = {
         translate: [0, 0],
         scale: 1,
@@ -42,17 +45,18 @@
     const colorSteps = {
         P0: ["#D9D9D9", "#FFD76D", "#FEA649", "#F86C30", "#E62F21", "#991824"],
         P1: ["#D9D9D9", "#E1F2F6", "#C8DFE8", "#7FB1D4", "#3E78B3", "#133267"],
-        P2: ["#D9D9D9", "#E1EFD3", "#CBE8B8", "#95C987", "#4A9351", "#1A4220"],
-        P3: ["#D9D9D9", "#E0D3D9", "#CC9EAF", "#A3405C", "#752345", "#351229"],
+        P2: ["#D9D9D9", "#E0D3D9", "#CC9EAF", "#A3405C", "#752345", "#351229"],
+        P3: ["#D9D9D9", "#E1EFD3", "#CBE8B8", "#95C987", "#4A9351", "#1A4220"],
+        
     };
 
     const constraintSteps = [
-        "0 - No significant access constraints",
-        "1 - Low access constraints",
-        "2 - Moderate access constraints",
-        "3 - High access constraints",
-        "4 - Very high access constraints",
-        "5 - Extreme access constraints"
+        "No significant access constraints",
+        "Low access constraints",
+        "Moderate access constraints",
+        "High access constraints",
+        "Very high access constraints",
+        "Extreme access constraints"
     ];
 
     // Map init
@@ -77,10 +81,9 @@
             .attr("stroke-width", "1px");
 
         // Adapt svg to mobile screens
-        // if (width < height) {
-        //     svg.attr("transform", "scale(2)")
-        //     d3.selectAll("g path").attr("stroke-width", 1 / 2);
-        // };
+        if (mobile) {
+            svg.attr("transform", "scale(2)")
+        };
 
         updateColor("P0");
     }
@@ -206,16 +209,10 @@
     <div class="map-legend">
         {#each colorSteps[currentStep.dimension] as color, i}
             <div class="legend-item">
-                <div><span class="dot" style="background-color: {color}"></span></div><p>{constraintSteps[i]}</p>
+                <div><span class="dot" style="background-color: {color}"></span></div><p>{i}</p><p class="constraint-name">: {constraintSteps[i]}</p>
             </div>
         {/each}
     </div>
     <div class="map-container">
     </div>
 </div>
-
-<style>
-    p {
-        font-size: 1em;
-    }
-</style>

@@ -7,7 +7,7 @@
                 <p>Data Analyst and Humanitarian Access Focal Point</p>
                 <p>cm@acaps.org</p>
             </div>
-            <a href="">
+            <a href="https://www.acaps.org/">
                 <img src="./img/acaps_logo.png" alt="ACAPS logo">
             </a>
         </div>
