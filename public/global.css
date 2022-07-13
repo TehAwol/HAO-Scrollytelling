@@ -80,7 +80,7 @@ caption {
 	background-color: white;
 	width: 100%;
 	height: 100%;
-	opacity: 0.8;
+	opacity: 1;
 	z-index: -1;
 	border-radius: 5px;
 	border: var(--acaps-dark-grey) solid 1px;
@@ -264,7 +264,7 @@ td {
 
 .foreground-container p {
 	font-size: 1.2em;
-	margin: .5em .2em;
+	margin: .5em;
 }
 
 .foreground-container h3 {

@@ -14,7 +14,7 @@
 
 	let index, offset, progress, toggleSkip;
 
-	$: if(index > 0) toggleSkip = true;
+	$: if (index > 0) toggleSkip = true;
 
 	const scrollyConfig = {
 		map: {
@@ -23,16 +23,19 @@
 				dimension: "P0",
 			},
 			1: {
-				dimension: "P1",
+				dimension: "P0",
 				code: "000",
+				isolate: ["232", "104", "804", "887"],
 			},
 			2: {
-				dimension: "P1",
-				code: "004",
+				dimension: "P0",
+				code: "000",
+				isolate: ["148", "222", "356", "360", "458", "104", "516", "586", "729", "804", "887"]
 			},
 			3: {
 				dimension: "P1",
 				code: "804",
+				highlight: ["804"],
 			},
 			4: {
 				dimension: "P2",
@@ -47,7 +50,7 @@
 
 	let selectedCode, selectedDimension, selectedCountry;
 
-	$: selectedCountry = data.find(c => c.code === selectedCode);
+	$: selectedCountry = data.find((c) => c.code === selectedCode);
 
 	function submitCode(code) {
 		scrollyConfig.map[5].code = code;
@@ -56,9 +59,9 @@
 		scrollyConfig.map[5].dimension = dimension;
 	}
 
-	function scrollTo (el) {
+	function scrollTo(el) {
 		let target = document.querySelector(el);
-		target.scrollIntoView({ behavior: "smooth"})
+		target.scrollIntoView({ behavior: "smooth" });
 	}
 
 	onMount(() => {});
@@ -93,11 +96,15 @@
 	</div>
 </section>
 {#if toggleSkip}
-<section>
-	<div class="col-medium col-center">
-		<button class="button-orange" on:click={() => scrollTo(".jump-bottom")}>Scroll to bottom</button>
-	</div>
-</section>
+	<section>
+		<div class="col-medium col-center">
+			<button
+				class="button-orange"
+				on:click={() => scrollTo(".jump-bottom")}
+				>Scroll to bottom</button
+			>
+		</div>
+	</section>
 {/if}
 <Scroller
 	top={0}
@@ -119,38 +126,27 @@
 		<section>
 			<div class="col-medium">
 				<p>
-					Over the past six months we’ve been collecting information
-					to produce the current Humanitarian Access Overview. Each
-					country is ranked on a scale from 0 to 5, with <span
-						class="red-extreme"
-						>5 representing extreme constraints</span
-					>,<span class="yellow-low">1 being low constraints</span> and
-					0 none. We structure our data around 3 pillars or dimensions.
-				</p>
-			</div>
-		</section>
-		<section>
-			<div class="col-medium">
-				<h3><span class="blue">Pillar 1</span> - Access of people in need to aid </h3>
-				<p>
-					The first pillar analyses whether people in need are
-					hindered in any way from accessing humanitarian aid and
-					assistance. This dimension is divided into two main
-					indicators; Denial of existence of humanitarian needs & Restriction and obstruction of access to services
-					and assistance.
+					This map shows the severity of Humanitarian Access
+					Constraints across the world on a country level.
 				</p>
 			</div>
 		</section>
 		<section>
 			<div class="col-medium">
 				<p>
-					There are cases where certain groups or areas specifically
-					are denied entitlement to assistance. This applies mainly in
-					protracted conflict situations, particularly in the Middle
-					East and Asia, and in other regions but to a lesser extent.
-					For instance, in Afghanistan, girls have been excluded from
-					secondary education at schools by the authorities,
-					significantly limiting their access to education.
+					In the period of January-June 2022 Eritrea, Myanmar, Ukraine
+					and Yemen faced <span class="red-extreme"
+						>Extreme Access Constraints</span
+					>
+				</p>
+			</div>
+		</section>
+		<section>
+			<div class="col-medium">
+				<p>
+					When compared to the last report published in July 2021, we
+					noted a deterioration in access across 11 countries, often
+					as a direct consequence of a worsening in context.
 				</p>
 			</div>
 		</section>
@@ -169,12 +165,18 @@
 		</section>
 		<section>
 			<div class="col-medium">
-				<h3><span class="red">Pillar 2</span> - Access of Humanitarian Agencies to People in Need</h3>
+				<h3>
+					<span class="red">Pillar 2</span> - Access of Humanitarian Agencies
+					to People in Need
+				</h3>
 				<p>
 					The second pillar analyses the access of humanitarian actors
 					to the people in need of humanitarian aid and assistance.
-					This dimension is based on 4 indicators; Impediments to entry into the country, Restriction of movement within the country, Interference into implementation of humanitarian
-					activities, and Violence against personnel, facilities and assets.
+					This dimension is based on 4 indicators; Impediments to
+					entry into the country, Restriction of movement within the
+					country, Interference into implementation of humanitarian
+					activities, and Violence against personnel, facilities and
+					assets.
 				</p>
 			</div>
 		</section>
@@ -226,12 +228,18 @@
 							</tr>
 							<tr>
 								<td><span class="green">Pillar 2</span></td>
-								<td>Access of humanitarian agencies to people in need</td>
+								<td
+									>Access of humanitarian agencies to people
+									in need</td
+								>
 								<td>{selectedCountry.P2}</td>
 							</tr>
 							<tr>
 								<td><span class="red">Pillar 3</span></td>
-								<td>Physical, environmental, and security constraints</td>
+								<td
+									>Physical, environmental, and security
+									constraints</td
+								>
 								<td>{selectedCountry.P3}</td>
 							</tr>
 						</table>
@@ -243,7 +251,11 @@
 </Scroller>
 <section>
 	<div class="col-medium col-center jump-bottom">
-		<button class="button-orange" on:click={() => scrollTo(".landing-container")}>Scroll to top</button>
+		<button
+			class="button-orange"
+			on:click={() => scrollTo(".landing-container")}
+			>Scroll to top</button
+		>
 	</div>
 </section>
 <section>

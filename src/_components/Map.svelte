@@ -20,10 +20,14 @@
         dimension: "P0",
     };
 
+
+    let displayDim;
     // Reactive logic
     $: nextStep(currentStep.scale, currentStep.translate);
     $: updateColor(currentStep.dimension);
     $: zoomToCountry(currentStep.code);
+    $: highlightCountry(currentStep.highlight);
+    $: isolateCountry(currentStep.isolate);
 
     // Projection init
     const projection = geoMercator()
@@ -47,7 +51,6 @@
         P1: ["#D9D9D9", "#E1F2F6", "#C8DFE8", "#7FB1D4", "#3E78B3", "#133267"],
         P2: ["#D9D9D9", "#E0D3D9", "#CC9EAF", "#A3405C", "#752345", "#351229"],
         P3: ["#D9D9D9", "#E1EFD3", "#CBE8B8", "#95C987", "#4A9351", "#1A4220"],
-        
     };
 
     const constraintSteps = [
@@ -56,7 +59,7 @@
         "Moderate access constraints",
         "High access constraints",
         "Very high access constraints",
-        "Extreme access constraints"
+        "Extreme access constraints",
     ];
 
     // Map init
@@ -65,7 +68,7 @@
             .select(".map-container")
             .append("svg")
             .attr("preserveAspectRatio", "xMidYMid meet")
-            .attr("viewBox", `0 0 ${width} ${height/100*95}`)
+            .attr("viewBox", `0 0 ${width} ${(height / 100) * 95}`)
             .attr("style", "background-color:#ffffff");
 
         svg.append("g")
@@ -75,15 +78,15 @@
             .append("path")
             .attr("d", path)
             .attr("id", (d) => {
-                return d.id;
+                return `c${d.id}`;
             })
             .attr("stroke", "white")
             .attr("stroke-width", "1px");
 
         // Adapt svg to mobile screens
         if (mobile) {
-            svg.attr("transform", "scale(2)")
-        };
+            svg.attr("transform", "scale(2)");
+        }
 
         updateColor("P0");
     }
@@ -92,8 +95,8 @@
         let x = window.innerWidth || e.clientWidth || g.clientWidth;
         let y = window.innerHeight || e.clientHeight || g.clientHeight;
 
-        console.log(x)
-        console.log(y)
+        console.log(x);
+        console.log(y);
 
         d3.select("svg").attr("viewBox", `0 0 ${width} ${height}`);
     }
@@ -123,6 +126,8 @@
      * @param {string} dimension The dimension to show: "P0", "P1", "P2" or "P3"
      */
     function updateColor(dimension) {
+        displayDim = dimension;
+
         let currentColor = colorSteps[dimension];
 
         d3.select("svg g")
@@ -132,6 +137,38 @@
             .attr("fill", (d) => {
                 d.score = scores.get(d.id) || emptyScore;
                 return currentColor[d.score[dimension]];
+            });
+    }
+
+    function highlightCountry(code) {
+        if (!code) return;
+        console.log("Highlighting");
+        for (let country of code) {
+            let selection = d3
+                .select(`#c${country}`)
+                .attr("stroke-color", "red")
+                .attr("stroke-width", "1");
+            console.log(selection);
+        }
+    }
+
+    function isolateCountry(code) {
+        if (!code) return;
+
+        let currentColor = colorSteps[displayDim];
+
+        console.log("Isolating");
+        d3.select("svg g")
+            .selectAll("path")
+            .transition()
+            .duration(1000)
+            .attr("fill", (d) => {
+                if (!code.includes(d.id)) {
+                    d.score = emptyScore;
+                } else {
+                    d.score = scores.get(d.id);
+                }
+                return currentColor[d.score[displayDim]];
             });
     }
 
@@ -169,7 +206,7 @@
             translate = [0, 0];
             scale = 1;
         } else {
-            let selection = document.getElementById(code).__data__;
+            let selection = document.getElementById(`c${code}`).__data__;
             let bounds = path.bounds(selection),
                 dx = bounds[1][0] - bounds[0][0],
                 dy = bounds[1][1] - bounds[0][1],
@@ -209,10 +246,13 @@
     <div class="map-legend">
         {#each colorSteps[currentStep.dimension] as color, i}
             <div class="legend-item">
-                <div><span class="dot" style="background-color: {color}"></span></div><p>{i}</p><p class="constraint-name">: {constraintSteps[i]}</p>
+                <div>
+                    <span class="dot" style="background-color: {color}" />
+                </div>
+                <p>{i}</p>
+                <p class="constraint-name">: {constraintSteps[i]}</p>
             </div>
         {/each}
     </div>
-    <div class="map-container">
-    </div>
+    <div class="map-container" />
 </div>
