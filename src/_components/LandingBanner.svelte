@@ -32,8 +32,9 @@
                     >DOWNLOAD METHODOLOGY</a
                 >
             </div>
-            <div class="col-center">
-                <p>Scroll down to read more</p>
+            <div class="col-center-row">
+                    <img class="bounce" src="./img/arrow-down.svg" alt="down arrow" style="margin-right: .2em;"/>
+                    <p>Scroll down to read more</p>
             </div>
         </div>
     </section>

@@ -52,10 +52,17 @@ caption {
 	margin: 0 24px;
 }
 
-.col-center {
+.col-center-col {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
+}
+
+.col-center-row {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: center;
 }
 
 .text-center {
@@ -153,6 +160,10 @@ nav {
 	width: 540px;
 	height: auto;
 	position: absolute;
+	left: 0;
+	right: 0;
+	margin-left: auto;
+	margin-right: auto;
 	filter: opacity(20%);
 	-webkit-filter: opacity(20%);
 	-moz-filter: opacity(20%);
@@ -235,6 +246,11 @@ img {
 	border-radius: 10px;
 }
 
+.button-orange:hover {
+	background-color: var(--acaps-light-grey);
+	color: var(--acaps-orange-saturated);
+}
+
 h1 {
 	font-family: "Bebas Neue";
 	font-size: 6em;
@@ -248,6 +264,10 @@ h2 {
 }
 
 p {
+	font-size: 1.3em;
+}
+
+li {
 	font-size: 1.3em;
 }
 
@@ -327,6 +347,14 @@ optgroup {
 	}
 
 	p {
+		font-size: 1.1em;
+	}
+
+	li {
+		font-size: 1.1em;
+	}
+
+	.foreground-container p {
 		font-size: 1.1em;
 	}
 

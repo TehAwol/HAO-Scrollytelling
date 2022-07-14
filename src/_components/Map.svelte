@@ -20,7 +20,6 @@
         dimension: "P0",
     };
 
-
     let displayDim;
     // Reactive logic
     $: nextStep(currentStep.scale, currentStep.translate);
@@ -68,7 +67,7 @@
             .select(".map-container")
             .append("svg")
             .attr("preserveAspectRatio", "xMidYMid meet")
-            .attr("viewBox", `0 0 ${width} ${(height / 100) * 95}`)
+            .attr("viewBox", `0 0 ${width} ${height/100*95.5}`)
             .attr("style", "background-color:#ffffff");
 
         svg.append("g")
@@ -195,30 +194,39 @@
 
     /**
      * Transitions from current transform to given country
-     * @param {string} code A ISO 3166-1 numeric country code in string format
+     * @param {string||Array} code A ISO 3166-1 numeric country code in string format or array of string codes
      */
     function zoomToCountry(code) {
         if (!code) return;
 
-        let translate, scale;
+        let translate, scale, selection;
 
         if (code === "000") {
             translate = [0, 0];
             scale = 1;
         } else {
-            let selection = document.getElementById(`c${code}`).__data__;
-            let bounds = path.bounds(selection),
-                dx = bounds[1][0] - bounds[0][0],
-                dy = bounds[1][1] - bounds[0][1],
-                x = (bounds[0][0] + bounds[1][0]) / 2,
-                y = (bounds[0][1] + bounds[1][1]) / 2;
+            if (!Array.isArray(code)) {
+                selection = document.getElementById(`c${code}`).__data__;
+            } else {
+                let featureCollection = {
+                    type: "FeatureCollection",
+                    features: [],
+                };
 
-            scale = Math.max(
-                1,
-                Math.min(8, 0.9 / Math.max(dx / width, dy / height))
-            );
+                for (let entry of code) {
+                    let selection = document.getElementById(
+                        `c${entry}`
+                    ).__data__;
+                    featureCollection.features.push(selection);
+                }
 
-            translate = [width / 2 - scale * x, height / 2 - scale * y];
+                selection = featureCollection;
+            }
+
+            let bounds = getBounds(selection);
+
+            translate = bounds.translate;
+            scale = bounds.scale;
         }
 
         d3.select("svg g")
@@ -233,6 +241,30 @@
 
         // Adapts borders to current scale
         d3.selectAll("g path").attr("stroke-width", 1 / scale);
+    }
+
+    /**
+     * Returns a bounds object {scale: x, translate: [x,y]} for map translation and zoom
+     * 
+     * @param {object} featureCollection Feature collection to fit in view
+     */
+    function getBounds(featureCollection) {
+        let translate, scale;
+
+        let bounds = path.bounds(featureCollection),
+            dx = bounds[1][0] - bounds[0][0],
+            dy = bounds[1][1] - bounds[0][1],
+            x = (bounds[0][0] + bounds[1][0]) / 2,
+            y = (bounds[0][1] + bounds[1][1]) / 2;
+
+        scale = Math.max(
+            1,
+            Math.min(8, 0.9 / Math.max(dx / width, dy / height))
+        );
+
+        translate = [width / 2 - scale * x, height / 2 - scale * y];
+
+        return { scale: scale, translate: translate };
     }
 
     onMount(() => {

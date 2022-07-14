@@ -5,6 +5,7 @@
 	import Header from "./_components/Header.svelte";
 	import LandingBanner from "./_components/LandingBanner.svelte";
 	import Map from "./_components/Map.svelte";
+	import MapStatic from "./_components/MapStatic.svelte";
 	import Scroller from "@sveltejs/svelte-scroller/Scroller.svelte";
 	import LoremIpsum from "./_components/LoremIpsum.svelte";
 	import Footer from "./_components/Footer.svelte";
@@ -12,51 +13,31 @@
 	import geojson from "./_data/countries-110m.json";
 	import data from "./_data/filtered-data.json";
 
+	import { scrollyConfig } from './config';
+
 	let index, offset, progress, toggleSkip;
 
 	$: if (index > 0) toggleSkip = true;
 
-	const scrollyConfig = {
-		map: {
-			0: {
-				code: "000",
-				dimension: "P0",
-			},
-			1: {
-				dimension: "P0",
-				code: "000",
-				isolate: ["232", "104", "804", "887"],
-			},
-			2: {
-				dimension: "P0",
-				code: "000",
-				isolate: ["148", "222", "356", "360", "458", "104", "516", "586", "729", "804", "887"]
-			},
-			3: {
-				dimension: "P1",
-				code: "804",
-				highlight: ["804"],
-			},
-			4: {
-				dimension: "P2",
-				code: "000",
-			},
-			5: {
-				dimension: "P0",
-				code: "000",
-			},
-		},
-	};
+	
 
 	let selectedCode, selectedDimension, selectedCountry;
 
 	$: selectedCountry = data.find((c) => c.code === selectedCode);
 
 	function submitCode(code) {
-		scrollyConfig.map[5].code = code;
+		scrollyConfig.map[
+			Object.keys(scrollyConfig.map)[
+				Object.keys(scrollyConfig.map).length - 1
+			]
+		].code = code;
 	}
 	function submitDimension(dimension) {
-		scrollyConfig.map[5].dimension = dimension;
+		scrollyConfig.map[
+			Object.keys(scrollyConfig.map)[
+				Object.keys(scrollyConfig.map).length - 1
+			]
+		].dimension = dimension;
 	}
 
 	function scrollTo(el) {
@@ -78,26 +59,45 @@
 			in need of assistance and protection would be impossible.
 		</p>
 		<p>
-			While there is no agreed-upon definition of “humanitarian access”,
-			many humanitarian actors use and promote a general definition of :
-			<strong
-				>Access of people in need to goods and services, and access by
-				humanitarian actors to people in need of assistance and
-				protection.</strong
-			>
-		</p>
-		<p>
 			ACAPS’ Humanitarian Access Overview provides an analysis on the
 			state of humanitarian access globally. The primary objective of our
 			analysis is to inform humanitarian decision makers by presenting a
 			summary of the access situation in different countries that face
 			humanitarian crises, both recent and protracted.
 		</p>
+		<p>
+			To do so we established the ACAPS Humanitarian Access Methodology
+			which groups several indicators under three key dimensions :
+		</p>
+		<div class="col-center">
+			<ul>
+				<li>
+					<span class="blue">Pillar 1</span> : Access of people in need
+					to humanitarian aid
+				</li>
+				<li>
+					<span class="red">Pillar 2</span> : Access of humanitarian actors
+					to affected population
+				</li>
+				<li>
+					<span class="green">Pillar 3</span> : Security and physical constraints
+				</li>
+			</ul>
+		</div>
+		<p>
+			This scoring model rates each dimension on a scale of 0-5 which
+			allows us to calculate the overall access score of a country, also
+			on a scale of 0-5.
+		</p>
+		<p>
+			Keep scrolling on the map below to view some key findings from our
+			report and examples of constraints in each dimension.
+		</p>
 	</div>
 </section>
 {#if toggleSkip}
 	<section>
-		<div class="col-medium col-center">
+		<div class="col-center">
 			<button
 				class="button-orange"
 				on:click={() => scrollTo(".jump-bottom")}
@@ -123,15 +123,15 @@
 		/>
 	</div>
 	<div class="foreground-container" slot="foreground">
-		<section>
+		<section id="step0">
 			<div class="col-medium">
 				<p>
 					This map shows the severity of Humanitarian Access
-					Constraints across the world on a country level.
+					Constraints across the world as per our analysis.
 				</p>
 			</div>
 		</section>
-		<section>
+		<section id="step1">
 			<div class="col-medium">
 				<p>
 					In the period of January-June 2022 Eritrea, Myanmar, Ukraine
@@ -141,7 +141,7 @@
 				</p>
 			</div>
 		</section>
-		<section>
+		<section id="step2">
 			<div class="col-medium">
 				<p>
 					When compared to the last report published in July 2021, we
@@ -150,37 +150,106 @@
 				</p>
 			</div>
 		</section>
-		<section>
+		<section id="step3">
 			<div class="col-medium">
 				<p>
-					Some areas are besieged, militarised, or have a high
+					But we also noticed an improvement in overall humanitarian
+					access in 22 countries mainly due to the lifting of COVID-19
+					related sanctions.
+				</p>
+			</div>
+		</section>
+		<section id="step4">
+			<div class="col-medium">
+				<p>
+					When focusing on the first pillar which analyses whether
+					people in need are hindered in any way from accessing
+					humanitarian aid and assistance.
+				</p>
+			</div>
+		</section>
+		<section id="step5">
+			<div class="col-medium">
+				<p>
+					There were cases where certain groups or areas specifically
+					are denied entitlement to assistance. This applies mainly in
+					protracted conflict situations, particularly in the Middle
+					East and Asia.
+				</p>
+			</div>
+		</section>
+		<section id="step6">
+			<div class="col-medium">
+				<p>
+					Other areas are besieged, militarised, or have a high
 					presence of security forces, making it dangerous for people
-					to travel within or out of these areas. This is the case
-					across regions, for several conflict-affected countries.
-					Since the Russian invasion of Ukraine in February 2022,
-					people in besieged areas have been stranded, with limited
-					access to food, water and humanitarian corridors.
+					to travel within or out of these areas. In Ukraine, since
+					the Russian invasion, people in besieged areas have been
+					stranded, with limited access to food, water and
+					humanitarian corridors.
 				</p>
 			</div>
 		</section>
-		<section>
+		<section id="step7">
 			<div class="col-medium">
-				<h3>
-					<span class="red">Pillar 2</span> - Access of Humanitarian Agencies
-					to People in Need
-				</h3>
 				<p>
-					The second pillar analyses the access of humanitarian actors
-					to the people in need of humanitarian aid and assistance.
-					This dimension is based on 4 indicators; Impediments to
-					entry into the country, Restriction of movement within the
-					country, Interference into implementation of humanitarian
-					activities, and Violence against personnel, facilities and
-					assets.
+					When looking at the second pillar analysing the access of
+					humanitarian actors to the people in need of humanitarian
+					aid and assistance.
 				</p>
 			</div>
 		</section>
-		<section>
+		<section id="step8">
+			<div class="col-medium">
+				<p>
+					Myanmar, Sudan and South Sudan were standout crises scoring
+					5 in this dimension. These outcomes mainly resulted from the
+					gradual deterioration of the conflict in Myanmar and the
+					military coup in Sudan.
+				</p>
+			</div>
+		</section>
+		<section id="step9">
+			<div class="col-medium">
+				<p>
+					At least 50 injuries of aid workers and 30 incidents of
+					looting of humanitarian assets were recorded in the first
+					half of this year. South Sudan recorded highest with 14 aid
+					worker injuries and 18 looting incidents.
+				</p>
+			</div>
+		</section>
+		<section id="step10">
+			<div class="col-medium">
+				<p>
+					Finally the third pillar analyses the physical,
+					environmental and security constraints that restrict
+					humanitarian assistance.
+				</p>
+			</div>
+		</section>
+		<section id="step11">
+			<div class="col-medium">
+				<p>
+					In most of the African countries with active humanitarian
+					crises, constraints of this type mainly include armed group
+					attacks against public infrastructure and contamination with
+					landmines and explosive devices.
+				</p>
+			</div>
+		</section>
+		<section id="step11">
+			<div class="col-medium">
+				<p>
+					In Colombia for example, 88.2% of roads are unpaved making
+					access to some remote regions more difficult. Municipalities
+					located in rural areas are the most affected and people in
+					need have difficulty accessing goods such as food and basic
+					supplies.
+				</p>
+			</div>
+		</section>
+		<section id="stepFinal">
 			<div class="col-medium">
 				<p>
 					Feel free to pick a country or dimension to get more
@@ -250,7 +319,7 @@
 	</div>
 </Scroller>
 <section>
-	<div class="col-medium col-center jump-bottom">
+	<div class="col-center jump-bottom">
 		<button
 			class="button-orange"
 			on:click={() => scrollTo(".landing-container")}
@@ -264,6 +333,8 @@
 		<LoremIpsum />
 	</div>
 </section>
-
 <Footer />
-<!-- <Map debug={false} /> -->
+
+<section>
+	<MapStatic debug={true} {geojson} accessData={data} />
+</section>
