@@ -1,18 +1,39 @@
 <script>
     import { onMount } from "svelte";
+    import { fade } from "svelte/transition";
     import { feature } from "topojson-client";
     import { geoPath, geoMercator } from "d3-geo";
 
+    import PointFeature from "./PointFeature.svelte";
+    import PolygonFeature from "./PolygonFeature.svelte";
+    import PathFeature from "./PathFeature.svelte";
+    import PathFeatureCol from "./PathFeatureCol.svelte";
+
+    import { colorSteps, constraintSteps } from "../config";
+
     export let geojson;
     export let accessData;
+    export let index;
+    export let splitscreen;
 
     import * as d3 from "d3";
 
-    const width = window.innerWidth;
-    const height = window.innerHeight;
+    let width, height;
+
+    if (splitscreen) {
+        width = (window.innerWidth / 100) * 75;
+        height = window.innerHeight;
+    } else {
+        width = window.innerWidth;
+        height = window.innerHeight;
+    }
 
     let mobile = false;
-    if (width < height) mobile = true;
+    let scaleMod = 1;
+    if (width < height) {
+        mobile = true;
+        scaleMod = 1.5;
+    }
 
     export let currentStep = {
         translate: [0, 0],
@@ -22,11 +43,11 @@
 
     let displayDim;
     // Reactive logic
-    $: nextStep(currentStep.scale, currentStep.translate);
     $: updateColor(currentStep.dimension);
     $: zoomToCountry(currentStep.code);
     $: highlightCountry(currentStep.highlight);
     $: isolateCountry(currentStep.isolate);
+    $: isolateRegion(currentStep.region);
 
     // Projection init
     const projection = geoMercator()
@@ -37,29 +58,14 @@
 
     // Map linking Access Scores to country features via ISO 3166-1 numeric
     const scores = new Map();
+    const regions = new Map();
     accessData.forEach((d) => {
         scores.set(d.code, { P0: d.P0, P1: d.P1, P2: d.P2, P3: d.P3 });
+        regions.set(d.code, d.region);
     });
 
     // Unranked countries are provided with an emptyScore for coloring purposes
     const emptyScore = { P0: "0", P1: "0", P2: "0", P3: "0" };
-
-    // Color gradient config
-    const colorSteps = {
-        P0: ["#D9D9D9", "#FFD76D", "#FEA649", "#F86C30", "#E62F21", "#991824"],
-        P1: ["#D9D9D9", "#E1F2F6", "#C8DFE8", "#7FB1D4", "#3E78B3", "#133267"],
-        P2: ["#D9D9D9", "#E0D3D9", "#CC9EAF", "#A3405C", "#752345", "#351229"],
-        P3: ["#D9D9D9", "#E1EFD3", "#CBE8B8", "#95C987", "#4A9351", "#1A4220"],
-    };
-
-    const constraintSteps = [
-        "No significant access constraints",
-        "Low access constraints",
-        "Moderate access constraints",
-        "High access constraints",
-        "Very high access constraints",
-        "Extreme access constraints",
-    ];
 
     // Map init
     function initMap() {
@@ -67,7 +73,7 @@
             .select(".map-container")
             .append("svg")
             .attr("preserveAspectRatio", "xMidYMid meet")
-            .attr("viewBox", `0 0 ${width} ${height/100*95.5}`)
+            .attr("viewBox", `0 0 ${width} ${height}`)
             .attr("style", "background-color:#ffffff");
 
         svg.append("g")
@@ -82,22 +88,38 @@
             .attr("stroke", "white")
             .attr("stroke-width", "1px");
 
+        // For countries labels, debugging
+        // svg.select("g")
+        //     .selectAll("text")
+        //     .data(worldjson)
+        //     .enter()
+        //     .append("text")
+        //     .text((d) => d.properties.name)
+        //     .attr("dx", (d) => {
+        //         return path.centroid(d)[0];
+        //     })
+        //     .attr("dy", (d) => {
+        //         return path.centroid(d)[1];
+        //     })
+        //     .attr("text-anchor", "middle")
+        //     .attr("font-size", "4pt");
+
         // Adapt svg to mobile screens
         if (mobile) {
-            svg.attr("transform", "scale(2)");
+            // svg.attr("transform", "scale(2)").attr(
+            //     "preserveAspectRatio",
+            //     "xMidYMid meet"
+            // );
         }
 
         updateColor("P0");
     }
 
     function updateSize() {
-        let x = window.innerWidth || e.clientWidth || g.clientWidth;
-        let y = window.innerHeight || e.clientHeight || g.clientHeight;
+        let x = (window.innerWidth / 100) * 75;
+        let y = window.innerHeight;
 
-        console.log(x);
-        console.log(y);
-
-        d3.select("svg").attr("viewBox", `0 0 ${width} ${height}`);
+        d3.select(".map-container svg").attr("viewBox", `0 0 ${x} ${y}`);
     }
 
     // Zoom init
@@ -135,28 +157,35 @@
             .duration(1000)
             .attr("fill", (d) => {
                 d.score = scores.get(d.id) || emptyScore;
+                d.region = regions.get(d.id);
                 return currentColor[d.score[dimension]];
             });
     }
 
+    /**
+     *
+     * @param {Array.<string>} code
+     */
     function highlightCountry(code) {
         if (!code) return;
-        console.log("Highlighting");
         for (let country of code) {
             let selection = d3
                 .select(`#c${country}`)
-                .attr("stroke-color", "red")
-                .attr("stroke-width", "1");
-            console.log(selection);
+                .attr("stroke-color", "white")
+                .attr("stroke-width", "0")
+                .attr("fill", "white");
         }
     }
 
+    /**
+     * Isolates the colour of given countries
+     * @param {Array.<string>} code A ISO 3166-1 numeric country code in string format or array of string codes
+     */
     function isolateCountry(code) {
-        if (!code) return;
+        if (!code || code[0] === "000") return;
 
         let currentColor = colorSteps[displayDim];
 
-        console.log("Isolating");
         d3.select("svg g")
             .selectAll("path")
             .transition()
@@ -172,29 +201,31 @@
     }
 
     /**
-     * Transitions from current transform to given new scale and translation
-     * @param {number} scale
-     * @param {Array} translate [x,y]
+     * Isolates the colors of countries in given region(s) !Only isolates countries with a score!
+     * @param {Array.<string>} code An array of region string
      */
-    function nextStep(scale, translate) {
-        if (!translate) return;
+    function isolateRegion(code) {
+        if (!code) return;
+
+        let currentColor = colorSteps[displayDim];
+
         d3.select("svg g")
+            .selectAll("path")
             .transition()
             .duration(1000)
-            .call(
-                zoom.transform,
-                d3.zoomIdentity
-                    .translate(translate[0], translate[1])
-                    .scale(scale)
-            );
-
-        // Adapts borders to current scale
-        d3.selectAll("g path").attr("stroke-width", 1 / scale);
+            .attr("fill", (d) => {
+                if (!code.includes(d.region)) {
+                    d.score = emptyScore;
+                } else {
+                    d.score = scores.get(d.id);
+                }
+                return currentColor[d.score[displayDim]];
+            });
     }
 
     /**
      * Transitions from current transform to given country
-     * @param {string||Array} code A ISO 3166-1 numeric country code in string format or array of string codes
+     * @param {string||Array.<strin>} code A ISO 3166-1 numeric country code in string format or array of string codes
      */
     function zoomToCountry(code) {
         if (!code) return;
@@ -202,8 +233,8 @@
         let translate, scale, selection;
 
         if (code === "000") {
-            translate = [0, 0];
-            scale = 1;
+            translate = [-200, 0];
+            scale = 1.2;
         } else {
             if (!Array.isArray(code)) {
                 selection = document.getElementById(`c${code}`).__data__;
@@ -245,7 +276,7 @@
 
     /**
      * Returns a bounds object {scale: x, translate: [x,y]} for map translation and zoom
-     * 
+     *
      * @param {object} featureCollection Feature collection to fit in view
      */
     function getBounds(featureCollection) {
@@ -270,21 +301,48 @@
     onMount(() => {
         initMap();
         if (debug) initZoom();
-        d3.select(window).on("resize.updatesvg", updateSize);
+        d3.select(window).on("resize.updatesvg", updateSize); // For responsive resizing
     });
 </script>
 
 <div class="chart-container">
+    <slot />
     <div class="map-legend">
-        {#each colorSteps[currentStep.dimension] as color, i}
-            <div class="legend-item">
-                <div>
-                    <span class="dot" style="background-color: {color}" />
+        <div class="legend-title">
+            {#if displayDim === "P0"}
+                <p in:fade={{ duration: 500 }}>Overall Access Score</p>
+            {:else if displayDim === "P1"}
+                <p in:fade={{ duration: 500 }}>
+                    <span class="blue">Pillar 1</span> - Access of people in need
+                    to humanitarian aid
+                </p>
+            {:else if displayDim === "P2"}
+                <p in:fade={{ duration: 500 }}>
+                    <span class="red">Pillar 2</span> - Access of humanitarian actors
+                    to affected population
+                </p>
+            {:else if displayDim === "P3"}
+                <p in:fade={{ duration: 500 }}>
+                    <span class="green">Pillar 3</span> - Security and physical constraints
+                </p>
+            {/if}
+        </div>
+        <div class="legend-items-container">
+            {#each colorSteps[currentStep.dimension] as color, i}
+                <div class="legend-item" id="legend">
+                    <div>
+                        <span class="dot" style="background-color: {color}" />
+                    </div>
+                    <p class="constraint-level">{i}:</p>
+                    <p class="constraint-name">{constraintSteps[i]}</p>
                 </div>
-                <p>{i}</p>
-                <p class="constraint-name">: {constraintSteps[i]}</p>
-            </div>
-        {/each}
+            {/each}
+        </div>
     </div>
-    <div class="map-container" />
+    <div class="map-container" id="map">
+        <PolygonFeature {path} {index} trigger={7} />
+        <PointFeature {projection} {index} trigger={10} />
+        <PathFeatureCol {path} {index} trigger={13} />
+        <PathFeature {path} {index} trigger={13} />
+    </div>
 </div>

@@ -30,6 +30,10 @@ function serve() {
 }
 
 export default {
+	onwarn: function (warning, warn) {
+		if (warning.code === 'CIRCULAR_DEPENDENCY') return;
+		warn(warning);
+	},
 	input: 'src/main.js',
 	output: {
 		sourcemap: true,
