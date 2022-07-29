@@ -13,8 +13,8 @@
     const geojson = feature(roads, roads.objects["red_vial"]).features;
 
     $: if (index === trigger) {
-        initFeatures();
         init = true;
+        initFeatures();
     } else if (init && index != trigger) {
         init = false;
         removeFeatures();
@@ -30,8 +30,9 @@
             .enter()
             .append("path")
             .attr("d", path)
-            .attr("stroke", "yellow")
-            .attr("fill", "#1A4220")
+            .attr("stroke", "#f9f871")
+            .attr("fill", "black")
+            .attr("fill-opacity", "0")
             .attr("stroke-width", "0px");
 
         graph.transition()
@@ -46,7 +47,9 @@
             .duration(1000)
             .attr("stroke-width", "0")
             .on("end", () => {
-                d3.selectAll("co-roads").remove()
+                graph.node().parentNode.remove()
             })
+        
+        d3.select(".co-roads").remove();
     }
 </script>

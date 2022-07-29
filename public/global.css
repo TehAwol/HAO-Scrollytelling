@@ -70,7 +70,7 @@ caption {
 }
 
 [slot="foreground"] section {
-	padding: 50vh 0 50vh 0;
+	padding: 35vh 0 35vh 0;
 	font-size: 1.1em;
 }
 
@@ -122,7 +122,7 @@ hr.solid {
 	height: auto;
 	width: 100%;
 	margin: 0;
-	max-height: 100%;
+	max-height: 90vh;
 }
 
 .map-container {
@@ -130,19 +130,25 @@ hr.solid {
 	width: 100%;
 	height: auto;
 	overflow: hidden;
-	max-height: 100vh;
+	max-height: 90vh;
+}
+
+.map-container svg {
+	max-width: 1408px;
+	max-height: 792px;
 }
 
 .map-legend {
-	position: absolute;
 	bottom: 0;
 	width: 100%;
 	height: auto;
 	background-color: white;
+	max-width: 1408px;
+	max-height: 792px;
 }
 
 .legend-title {
-	margin: .2em 1em;
+	margin: .2em;
 }
 
 .legend-title p {
@@ -150,6 +156,14 @@ hr.solid {
 	margin-top: .5em;
 	margin-bottom: 0;
 	font-size: 1.2;
+}
+
+.legend-subtitle {
+	margin: .2em 1em;
+}
+
+.legend-subtitle p {
+	font-size: .9em;
 }
 
 .legend-items-container {
@@ -173,6 +187,12 @@ hr.solid {
 	margin: 0;
 }
 
+.source-item {
+	font-size: .8em;
+	margin: .2em 1em;
+	color: var(--acaps-dark-grey);
+}
+
 .dot {
 	height: 1.5em;
 	width: 1.5em;
@@ -182,6 +202,10 @@ hr.solid {
 	display: inline-block;
 	margin-right: 1em;
 	box-sizing: border-box;
+}
+
+.vl {
+	border-left: 2px solid;
 }
 
 .constraint-level {
@@ -405,6 +429,11 @@ td, th {
 
 span {
 	padding: 0 .3em;
+}
+
+span.orange {
+	color: white;
+	background-color: var(--acaps-orange-saturated);
 }
 
 span.red {

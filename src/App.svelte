@@ -20,13 +20,15 @@
 	$: if (index > 0) toggleSkip = true;
 
 	// Handles splitscreen mode acoording to screen ratio
+	let top = 0;
+	let bottom;
 	let splitscreen = window.innerHeight / window.innerWidth < 1.8;
+	$: splitscreen ? bottom = 0.9 : bottom = 0.5;
+
 	function handleResize() {
 		splitscreen = window.innerHeight / window.innerWidth < 1.8;
 	}
-
 	window.onresize = handleResize;
-
 
 	// Country selection reactivity
 	let selectedCode, selectedDimension, selectedCountry;
@@ -66,8 +68,9 @@
 
 	// Map keyboard handler
 	function onKeyDown(evt) {
-		if (evt.keyCode === 38) scrollTo(`#step${index - 1}`);
-		if (evt.keyCode === 40 && progress > 0) scrollTo(`#step${index + 1}`);
+		console.log(evt.key, evt.keyCode, index)
+		if (evt.key === "ArrowUp") {scrollTo(`#step${index - 1}`)};
+		if (evt.key === "ArrowDown" && progress > 0) scrollTo(`#step${index + 1}`);
 	}
 
 	onMount(() => {});
@@ -127,6 +130,7 @@
 <hr class="solid" />
 <section>
 	<div class="col-medium">
+		<h2>Findings</h2>
 		<p>
 			Keep scrolling on the map below to view some key findings from our
 			report and examples of constraints in each dimension.
@@ -152,8 +156,8 @@
 		</div>
 	{/if}
 	<Scroller
-		top={0}
-		bottom={1}
+		top={top}
+		bottom={bottom}
 		threshold={0.5}
 		bind:index
 		bind:offset
@@ -167,23 +171,26 @@
 				{geojson}
 				accessData={data}
 				{index}
-				{splitscreen}
+				features={true}
 			/>
 			<progress id="progress-bar" value={progress || 0} />
 		</div>
 		<div class="foreground-container" slot="foreground">
 			<section id="step0">
 				<div class="col-medium">
+					<h3>
+						<span class="orange">Humanitarian Access Overview</span>
+					</h3>
 					<p>
 						This map shows the severity of Humanitarian Access
-						Constraints across the world as per our analysis.
+						Constraints in the period of January to June 2022.
 					</p>
 				</div>
 			</section>
 			<section id="step1">
 				<div class="col-medium">
 					<p>
-						In the period of January-June 2022 <strong
+						During this period of time <strong
 							>Eritrea, Myanmar, Ukraine and Yemen</strong
 						>
 						faced
@@ -196,7 +203,7 @@
 			<section id="step2">
 				<div class="col-medium">
 					<p>
-						When compared to the last report published in December
+						When comparing to our last report published in December
 						2021, we noted <strong
 							>a deterioration in access across 11 countries</strong
 						>, often as a direct consequence of a worsening in
@@ -217,23 +224,23 @@
 			<section id="step4">
 				<div class="col-medium">
 					<p>
-						In our report we approach access through <strong
-							>3 dimensions</strong
-						> to better understand the type of access constraint affecting
-						different humanitarian contexts.
+						We approach access through <strong>3 dimensions</strong>
+						to better understand the type of access constraint in different
+						humanitarian contexts.
 					</p>
 				</div>
 			</section>
 			<section id="step5">
 				<div class="col-medium">
 					<h3>
-						<span class="blue">Pillar 1</span> - Access of people in
-						need to aid
+						<span class="blue">Pillar 1</span>
 					</h3>
+					<h3>Access of people in need to aid</h3>
 					<p>
-						The first dimension analyses whether people in need are
-						hindered in any way from accessing humanitarian aid and
-						assistance. 2 indicators are used in this dimension:
+						The first dimension analyses whether <strong
+							>people in need are hindered in any way from
+							accessing humanitarian aid and assistance.</strong
+						> 2 indicators are used in this dimension:
 					</p>
 					<ul>
 						<li>
@@ -250,10 +257,11 @@
 			<section id="step6">
 				<div class="col-medium">
 					<p>
-						There were cases where certain groups or areas
-						specifically are <strong>denied entitlement to assistance</strong>. This
-						applies mainly in protracted conflict situations,
-						particularly in the Middle East and Asia.
+						In this dimension, there were cases where certain groups
+						or areas specifically are <strong
+							>denied entitlement to assistance</strong
+						>. This applies mainly in protracted conflict
+						situations, particularly in the Middle East and Asia.
 					</p>
 				</div>
 			</section>
@@ -262,23 +270,34 @@
 					<p>
 						Other areas are besieged, militarised, or have a high
 						presence of security forces, making it dangerous for
-						people to travel within or out of these areas. In
-						Ukraine, since the Russian invasion, people in besieged
-						areas have been stranded, with limited access to food,
-						water and humanitarian corridors.
+						people to travel within or out of these areas.
+					</p>
+					<p>
+						<strong>In Ukraine</strong> people in besieged areas
+						have been stranded, with
+						<strong
+							>limited access to food, water and humanitarian
+							corridors.</strong
+						>
+						Since the Russian invasion, we've recorded
+						<strong>502 events</strong> relating to the access of people
+						in need to aid, mostly in the eastern parts of the country.
 					</p>
 				</div>
 			</section>
 			<section id="step8">
 				<div class="col-medium">
 					<h3>
-						<span class="red">Pillar 1</span> - Access of humanitarian
-						actors to affected population
+						<span class="red">Pillar 2</span>
+					</h3>
+					<h3>
+						Access of humanitarian actors to affected population
 					</h3>
 					<p>
-						The second pillar analyses the access of humanitarian
-						actors to the people in need of humanitarian aid and
-						assistance. 4 indicators are used in this dimension:
+						The second pillar analyses <strong
+							>the access of humanitarian actors to the people in
+							need of humanitarian aid and assistance.</strong
+						> 4 indicators are used in this dimension:
 					</p>
 					<ul>
 						<li>Impediments to enter the country</li>
@@ -297,10 +316,10 @@
 			<section id="step9">
 				<div class="col-medium">
 					<p>
-						Myanmar, Sudan and South Sudan were standout crises
-						scoring 5 in this dimension. These outcomes mainly
-						resulted from the gradual deterioration of the conflict
-						in Myanmar and the military coup in Sudan.
+						<strong>Myanmar, Sudan and South Sudan</strong> were standout
+						crises scoring 5 in this dimension. These outcomes mainly
+						resulted from the gradual deterioration of the conflict in
+						Myanmar and the military coup in Sudan.
 					</p>
 				</div>
 			</section>
@@ -309,21 +328,23 @@
 					<p>
 						At least 50 injuries of aid workers and 30 incidents of
 						looting of humanitarian assets were recorded in the
-						first half of this year. South Sudan recorded highest
-						with 14 aid worker injuries and 18 looting incidents.
+						first half of this year. <strong
+							>South Sudan recorded highest with 14 aid worker
+							injuries and 18 looting incidents.</strong
+						>
 					</p>
 				</div>
 			</section>
 			<section id="step11">
 				<div class="col-medium">
 					<h3>
-						<span class="green">Pillar 3</span> - Security and phyisical constraints
+						<span class="green">Pillar 3</span>
 					</h3>
+					<h3>Security and phyisical constraints</h3>
 					<p>
-						Fhe third pillar analyses the physical, environmental
-						and security constraints that restrict humanitarian
-						assistance. 3 indicators are used in this
-						dimension:
+						The third pillar analyses <strong>the physical, environmental
+							and security constraints that restrict humanitarian
+							assistance.</strong> 3 indicators are used in this dimension:
 					</p>
 					<ul>
 						<li>
@@ -344,31 +365,48 @@
 					<p>
 						In most of the African countries with active
 						humanitarian crises, constraints of this type mainly
-						include armed group attacks against public
-						infrastructure and contamination with landmines and
-						explosive devices.
+						include <strong
+							>armed group attacks against public infrastructure
+							and contamination with landmines and explosive
+							devices.</strong
+						>
 					</p>
 				</div>
 			</section>
 			<section id="step13">
 				<div class="col-medium">
 					<p>
-						In Colombia for example, 88.2% of roads are unpaved
-						making access to some remote regions more difficult.
-						Municipalities located in rural areas are the most
-						affected and people in need have difficulty accessing
-						goods such as food and basic supplies.
+						<strong>In Colombia</strong> for example,
+						<strong>88.2% of roads are unpaved</strong> making access
+						to some remote regions more difficult. Municipalities located
+						in rural areas are the most affected and people in need have
+						difficulty accessing goods such as food and basic supplies.
+					</p>
+
+					<p>
+						Some of these remote regions, like <strong>Arauca and Chocó</strong>,
+						have amongst the highest numbers of people in need.
 					</p>
 				</div>
 			</section>
 			<section id="step14">
-				<div class="col-medium">
+				<div class="col-medium" style="text-align: center;">
+					<h3>
+						<span class="orange">Humanitarian Access Overview</span>
+					</h3>
 					<p>
-						You can pick a country to view its score and dimension
-						scores.
+						Read more about about access constraints in our report :
 					</p>
+					<div style="width:auto; margin:auto; text-align: center;">
+						<a
+							href="https://www.acaps.org/sites/acaps/files/products/files/acaps_humanitarian_access_overview_july_2022.pdf"
+							><button class="button-orange"
+								>Download report</button
+							></a
+						>
+					</div>
 
-					<select
+					<!-- <select
 						bind:value={selectedCode}
 						on:change={submitCode(selectedCode)}
 					>
@@ -380,7 +418,7 @@
 								>
 							{/each}
 						</optgroup>
-					</select>
+					</select> -->
 
 					<!-- <select
 					bind:value={selectedDimension}
@@ -393,23 +431,12 @@
 						<option value="P3">Pillar 3</option>
 					</optgroup>
 				</select> -->
-					<div id="barChart">
-						<BarChart
-							selection={selectedCountry}
-							anchor={"#barChart"}
-						/>
-					</div>
-
-					{#if selectedCountry != undefined}
-						<h3>
-							{selectedCountry.name}
-						</h3>
-					{/if}
 				</div>
 			</section>
 		</div>
 	</Scroller>
 </div>
+<hr class="solid" />
 <section>
 	<div class="col-medium content-container methodology">
 		<h2>Methodology</h2>

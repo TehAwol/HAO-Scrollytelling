@@ -14,19 +14,12 @@
     export let geojson;
     export let accessData;
     export let index;
-    export let splitscreen;
+    export let features;
 
     import * as d3 from "d3";
 
-    let width, height;
-
-    if (splitscreen) {
-        width = (window.innerWidth / 100) * 75;
-        height = window.innerHeight;
-    } else {
-        width = window.innerWidth;
-        height = window.innerHeight;
-    }
+    let width = 900;
+    let height = 500;
 
     let mobile = false;
     let scaleMod = 1;
@@ -42,6 +35,8 @@
     };
 
     let displayDim;
+    let featureIndexes = [7, 10, 13];
+
     // Reactive logic
     $: updateColor(currentStep.dimension);
     $: zoomToCountry(currentStep.code);
@@ -72,8 +67,8 @@
         let svg = d3
             .select(".map-container")
             .append("svg")
-            .attr("preserveAspectRatio", "xMidYMid meet")
             .attr("viewBox", `0 0 ${width} ${height}`)
+            .attr("preserveAspectRatio", "xMidYMid")
             .attr("style", "background-color:#ffffff");
 
         svg.append("g")
@@ -233,8 +228,8 @@
         let translate, scale, selection;
 
         if (code === "000") {
-            translate = [-200, 0];
-            scale = 1.2;
+            translate = [-50, 0];
+            scale = 1.1;
         } else {
             if (!Array.isArray(code)) {
                 selection = document.getElementById(`c${code}`).__data__;
@@ -290,59 +285,68 @@
 
         scale = Math.max(
             1,
-            Math.min(8, 0.9 / Math.max(dx / width, dy / height))
+            Math.min(8, 0.9 / Math.max(dx / width, dy / height)) * 0.8
         );
 
         translate = [width / 2 - scale * x, height / 2 - scale * y];
-
+        
         return { scale: scale, translate: translate };
     }
 
     onMount(() => {
         initMap();
         if (debug) initZoom();
-        d3.select(window).on("resize.updatesvg", updateSize); // For responsive resizing
+        // d3.select(window).on("resize.updatesvg", updateSize); // For responsive resizing
     });
 </script>
 
 <div class="chart-container">
     <slot />
+    <div class="map-container" id="map" />
     <div class="map-legend">
-        <div class="legend-title">
-            {#if displayDim === "P0"}
-                <p in:fade={{ duration: 500 }}>Overall Access Score</p>
-            {:else if displayDim === "P1"}
-                <p in:fade={{ duration: 500 }}>
-                    <span class="blue">Pillar 1</span> - Access of people in need
-                    to humanitarian aid
-                </p>
-            {:else if displayDim === "P2"}
-                <p in:fade={{ duration: 500 }}>
-                    <span class="red">Pillar 2</span> - Access of humanitarian actors
-                    to affected population
-                </p>
-            {:else if displayDim === "P3"}
-                <p in:fade={{ duration: 500 }}>
-                    <span class="green">Pillar 3</span> - Security and physical constraints
-                </p>
-            {/if}
-        </div>
-        <div class="legend-items-container">
-            {#each colorSteps[currentStep.dimension] as color, i}
-                <div class="legend-item" id="legend">
-                    <div>
-                        <span class="dot" style="background-color: {color}" />
-                    </div>
-                    <p class="constraint-level">{i}:</p>
-                    <p class="constraint-name">{constraintSteps[i]}</p>
+        {#if !featureIndexes.includes(index)}
+            <div class="map-static-legend">
+                <div class="legend-title">
+                    {#if displayDim === "P0"}
+                        <p in:fade={{ duration: 300 }}>Overall Access Score</p>
+                    {:else if displayDim === "P1"}
+                        <p in:fade={{ duration: 300 }}>
+                            <span class="blue">Pillar 1</span> - Access of people
+                            in need to humanitarian aid
+                        </p>
+                    {:else if displayDim === "P2"}
+                        <p in:fade={{ duration: 300 }}>
+                            <span class="red">Pillar 2</span> - Access of humanitarian
+                            actors to affected population
+                        </p>
+                    {:else if displayDim === "P3"}
+                        <p in:fade={{ duration: 300 }}>
+                            <span class="green">Pillar 3</span> - Security and physical
+                            constraints
+                        </p>
+                    {/if}
                 </div>
-            {/each}
-        </div>
-    </div>
-    <div class="map-container" id="map">
-        <PolygonFeature {path} {index} trigger={7} />
-        <PointFeature {projection} {index} trigger={10} />
-        <PathFeatureCol {path} {index} trigger={13} />
-        <PathFeature {path} {index} trigger={13} />
+                <div class="legend-items-container">
+                    {#each colorSteps[currentStep.dimension] as color, i}
+                        <div class="legend-item">
+                            <div>
+                                <span
+                                    class="dot"
+                                    style="background-color: {color}"
+                                />
+                            </div>
+                            <p class="constraint-level">{i}</p>
+                            <p class="constraint-name">: {constraintSteps[i]}</p>
+                        </div>
+                    {/each}
+                </div>
+            </div>
+        {/if}
+        {#if features}
+            <PolygonFeature {path} {index} trigger={7} />
+            <PointFeature {projection} {index} trigger={10} />
+            <PathFeatureCol {path} {index} trigger={13} />
+            <PathFeature {path} {index} trigger={13} />
+        {/if}
     </div>
 </div>
