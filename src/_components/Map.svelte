@@ -18,8 +18,8 @@
 
     import * as d3 from "d3";
 
-    let width = 900;
-    let height = 500;
+    let width = 1800;
+    let height = 1000;
 
     let mobile = false;
     let scaleMod = 1;
@@ -65,7 +65,7 @@
     // Map init
     function initMap() {
         let svg = d3
-            .select(".map-container")
+            .select("#map")
             .append("svg")
             .attr("viewBox", `0 0 ${width} ${height}`)
             .attr("preserveAspectRatio", "xMidYMid")
@@ -82,30 +82,6 @@
             })
             .attr("stroke", "white")
             .attr("stroke-width", "1px");
-
-        // For countries labels, debugging
-        // svg.select("g")
-        //     .selectAll("text")
-        //     .data(worldjson)
-        //     .enter()
-        //     .append("text")
-        //     .text((d) => d.properties.name)
-        //     .attr("dx", (d) => {
-        //         return path.centroid(d)[0];
-        //     })
-        //     .attr("dy", (d) => {
-        //         return path.centroid(d)[1];
-        //     })
-        //     .attr("text-anchor", "middle")
-        //     .attr("font-size", "4pt");
-
-        // Adapt svg to mobile screens
-        if (mobile) {
-            // svg.attr("transform", "scale(2)").attr(
-            //     "preserveAspectRatio",
-            //     "xMidYMid meet"
-            // );
-        }
 
         updateColor("P0");
     }

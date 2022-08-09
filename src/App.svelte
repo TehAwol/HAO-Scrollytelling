@@ -22,7 +22,7 @@
 	// Handles splitscreen mode acoording to screen ratio
 	let top = 0;
 	let bottom;
-	let splitscreen = window.innerHeight / window.innerWidth < 1.8;
+	let splitscreen = window.innerHeight / window.innerWidth < 1.6;
 	$: splitscreen ? bottom = 0.9 : bottom = 0.5;
 
 	function handleResize() {

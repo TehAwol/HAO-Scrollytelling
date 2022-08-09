@@ -10,8 +10,11 @@
 	--acaps-access-blue: #3E78B3;
 	--acaps-access-red: #A3405D;
 	--acaps-access-green: #4A9351;
-	--acaps-access-extreme-red: #991824;
-	--acaps-access-low-yellow: #FFD76D;
+	--acaps-access-extreme: #991824;
+	--acaps-access-veryhigh: #E72E22;
+	--acaps-access-high: #F96C30;
+	--acaps-access-moderate: #FFA74A;
+	--acaps-access-low: #FFD76D;
 }
 
 html,
@@ -133,10 +136,10 @@ hr.solid {
 	max-height: 90vh;
 }
 
-.map-container svg {
+/* .map-container svg {
 	max-width: 1408px;
 	max-height: 792px;
-}
+} */
 
 .map-legend {
 	bottom: 0;
@@ -453,12 +456,27 @@ span.blue {
 
 span.yellow-low {
 	color: black;
-	background-color: var(--acaps-access-low-yellow);
+	background-color: var(--acaps-access-low);
+}
+
+span.yellow-moderate {
+	color: black;
+	background-color: var(--acaps-access-moderate);
+}
+
+span.yellow-high {
+	color: white;
+	background-color: var(--acaps-access-high);
+}
+
+span.yellow-veryhigh {
+	color: white;
+	background-color: var(--acaps-access-veryhigh);
 }
 
 span.red-extreme {
 	color: white;
-	background-color: var(--acaps-access-extreme-red);
+	background-color: var(--acaps-access-extreme);
 }
 
 select {
