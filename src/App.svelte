@@ -473,7 +473,7 @@
 			a country. Each dimension is composed of several indicators which
 			allows us to calculate its score according to thresholds.
 		</p>
-		<img src="./img/methodology.png" alt="methodology chart" />
+		<img src="./img/methodology.svg" alt="methodology chart" />
 		<p>
 			Indicators are given a score between 0 (no impact on access) to 3
 			(blocking access). They are assessed using different methods,

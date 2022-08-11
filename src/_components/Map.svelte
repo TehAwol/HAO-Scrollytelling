@@ -18,8 +18,8 @@
 
     import * as d3 from "d3";
 
-    let width = 1800;
-    let height = 1000;
+    let width = 900;
+    let height = 500;
 
     let mobile = false;
     let scaleMod = 1;
@@ -35,7 +35,11 @@
     };
 
     let displayDim;
+    // Hides map legend at these steps
     let featureIndexes = [7, 10, 13];
+    if (features === false) {
+        featureIndexes = [];
+    }
 
     // Reactive logic
     $: updateColor(currentStep.dimension);
@@ -134,8 +138,8 @@
     }
 
     /**
-     *
-     * @param {Array.<string>} code
+     * Highlights (increases border thickness) of the given country
+     * @param {Array.<string>} code A ISO 3166-1 numeric country code in string format or array of string codes
      */
     function highlightCountry(code) {
         if (!code) return;
@@ -143,7 +147,7 @@
             let selection = d3
                 .select(`#c${country}`)
                 .attr("stroke-color", "white")
-                .attr("stroke-width", "0")
+                .attr("stroke-width", "2px")
                 .attr("fill", "white");
         }
     }

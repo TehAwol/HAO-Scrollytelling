@@ -109,7 +109,7 @@
         <div class="legend-items-container">
             <div class="legend-item">
                 <div>
-                    <span class="dot" style="background-color: #005b94; border: 2px solid #9c383e" />
+                    <span class="dot" style="background-color: #a0afa0; border: 2px solid #9c383e" />
                 </div>
                 <p class="constraint-name">Affected departments</p>
             </div>

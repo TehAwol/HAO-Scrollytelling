@@ -71,7 +71,6 @@ export const scrollyConfig = {
             dimension: "P1",
             code: "804",
             isolate: ["001"],
-            highlight: ["804"]
         },
         8: {
             dimension: "P2",

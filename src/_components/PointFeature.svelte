@@ -83,7 +83,7 @@
             </div>
             <div class="legend-item">
                 <div>
-                    <span class="dot" style="background-color: blue" />
+                    <span class="dot" style="background-color: green" />
                 </div>
                 <p class="constraint-name">Unknown</p>
             </div>

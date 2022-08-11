@@ -8,7 +8,7 @@ Ensure that you have NPM installed on your machine.
 
 Download the repo and run the following commands to view the page locally:
 
-`cd barebones`
+`cd HAO-Scrollytelling`
 
 `npm install`
 
